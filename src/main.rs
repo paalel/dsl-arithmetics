@@ -47,28 +47,30 @@ fn build(mut problem: Vec<char>) -> Equation {
         problem = problem[1..length - 1].to_vec();
     }
 
-    let mut i = 0;
-    while i < length {
-        // Split binary opertor
-        if OPERATORS.contains(&problem[i]) {
-            return Expression {
-                op: operator_from_char(&problem[i]),
-                left: Box::new(build(problem[..i].to_vec())),
-                right: Box::new(build(problem[(i + 1)..].to_vec())),
-            };
-        }
-        // Group parenthesis to make sure it is correctly identified as input to a binary operator.
-        if problem[i] == '(' {
-            let mut j = i;
-            while j < length {
-                if problem[j] == ')' {
-                    i = j;
-                    break;
-                }
-                j += 1;
+    for operator in OPERATORS {
+        let mut i = 0;
+        while i < length {
+            // Split binary opertor
+            if problem[i] == operator {
+                return Expression {
+                    op: operator_from_char(&operator),
+                    left: Box::new(build(problem[..i].to_vec())),
+                    right: Box::new(build(problem[(i + 1)..].to_vec())),
+                };
             }
+            // Group parenthesis to make sure it is correctly identified as input to a binary operator.
+            if problem[i] == '(' {
+                let mut j = i;
+                while j < length {
+                    if problem[j] == ')' {
+                        i = j;
+                        break;
+                    }
+                    j += 1;
+                }
+            }
+            i += 1;
         }
-        i += 1;
     }
     let s: String = problem.into_iter().collect();
     let v = s.parse().unwrap();
@@ -81,8 +83,6 @@ fn main() {
 
     // TODO:
     // - Verify that the input is correct.
-    // - Consider operator order? Instead of traversing the string the array it could also make
-    // sense to split by symbols.
     // - Add tests
 
     // Check for allowed symbols
